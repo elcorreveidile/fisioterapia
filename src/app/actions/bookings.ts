@@ -228,54 +228,72 @@ export async function createBooking(data: {
       .returning();
   }
 
-  // Verificar bono si se proporciona
+  // Verificar y bloquear bono si se proporciona (dentro de transacción para evitar race condition)
   if (voucherId) {
-    const [voucher] = await db
+    // Primero verificamos sin bloquear para validación básica
+    const [voucherCheck] = await db
       .select()
       .from(vouchers)
       .where(eq(vouchers.id, voucherId))
       .limit(1);
 
-    if (!voucher) {
+    if (!voucherCheck) {
       throw new Error('Bono no encontrado');
     }
 
-    if (voucher.patientId !== patient.id) {
+    if (voucherCheck.patientId !== patient.id) {
       throw new Error('El bono no pertenece a este paciente');
     }
+  }
 
-    if (voucher.sessionsRemaining <= 0) {
-      throw new Error('El bono no tiene sesiones restantes');
+  // Crear la reserva y descontar bono en transacción atómica
+  return await db.transaction(async (tx) => {
+    // Si se usa bono, verificar y bloquear dentro de la transacción
+    if (voucherId) {
+      const [voucher] = await tx
+        .select()
+        .from(vouchers)
+        .where(eq(vouchers.id, voucherId))
+        .for('update') // Bloquea la fila para esta transacción
+        .limit(1);
+
+      if (!voucher || voucher.patientId !== patient.id) {
+        tx.rollback();
+        throw new Error('El bono no existe o no pertenece a este paciente');
+      }
+
+      if (voucher.sessionsRemaining <= 0) {
+        tx.rollback();
+        throw new Error('El bono no tiene sesiones restantes');
+      }
+
+      // Descontar sesión (usando SQL parametrizado para evitar inyección)
+      await tx
+        .update(vouchers)
+        .set({
+          sessionsRemaining: sql`${vouchers.sessionsRemaining} - ${1}`,
+        })
+        .where(eq(vouchers.id, voucherId));
     }
-  }
 
-  // Crear la reserva
-  const [booking] = await db
-    .insert(bookings)
-    .values({
-      patientId: patient.id,
-      professionalId,
-      serviceId,
-      start,
-      end,
-      status: 'pending',
-      cancellationToken: randomUUID(),
-      voucherId: voucherId || null,
-      demo: true,
-    })
-    .returning();
-
-  // Si se usó bono, descontar una sesión
-  if (voucherId) {
-    await db
-      .update(vouchers)
-      .set({
-        sessionsRemaining: sql`${vouchers.sessionsRemaining} - 1`,
+    // Crear la reserva
+    const [booking] = await tx
+      .insert(bookings)
+      .values({
+        patientId: patient.id,
+        professionalId,
+        serviceId,
+        start,
+        end,
+        status: 'pending',
+        cancellationToken: randomUUID(),
+        voucherId: voucherId || null,
+        demo: true,
       })
-      .where(eq(vouchers.id, voucherId));
-  }
+      .returning();
 
-  return booking;
+    return booking;
+  });
 }
 
 // Cancelar una reserva
@@ -294,12 +312,12 @@ export async function cancelBooking(cancellationToken: string) {
     throw new Error('La reserva ya está cancelada');
   }
 
-  // Si se usó bono, devolver la sesión
+  // Si se usó bono, devolver la sesión (usando SQL parametrizado)
   if (booking.voucherId) {
     await db
       .update(vouchers)
       .set({
-        sessionsRemaining: sql`${vouchers.sessionsRemaining} + 1`,
+        sessionsRemaining: sql`${vouchers.sessionsRemaining} + ${1}`,
       })
       .where(eq(vouchers.id, booking.voucherId));
   }
