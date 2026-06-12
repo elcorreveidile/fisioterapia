@@ -14,6 +14,47 @@ import { randomUUID } from 'crypto';
 import { addMinutes, startOfDay, endOfDay } from 'date-fns';
 import { z } from 'zod';
 
+// ===== CACHÉ SIMPLE EN MEMORIA =====
+interface CacheEntry {
+  data: AvailableSlot[];
+  timestamp: number;
+}
+
+const cache = new Map<string, CacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+function getCacheKey(serviceId: number, date: Date, professionalId?: number): string {
+  return `${serviceId}-${date.toISOString()}-${professionalId || 'all'}`;
+}
+
+function getFromCache(key: string): AvailableSlot[] | null {
+  const entry = cache.get(key);
+  if (!entry) return null;
+
+  if (Date.now() - entry.timestamp > CACHE_TTL) {
+    cache.delete(key);
+    return null;
+  }
+
+  return entry.data;
+}
+
+function setCache(key: string, data: AvailableSlot[]): void {
+  cache.set(key, {
+    data,
+    timestamp: Date.now(),
+  });
+}
+
+function invalidateCacheForDate(date: Date): void {
+  const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+  for (const key of cache.keys()) {
+    if (key.includes(dateStr)) {
+      cache.delete(key);
+    }
+  }
+}
+
 // ===== ERROR HANDLING CONSISTENTE =====
 export class BookingError extends Error {
   constructor(
@@ -69,6 +110,13 @@ export async function getAvailableSlots(
 ): Promise<AvailableSlot[]> {
   // Validar inputs
   const validated = GetAvailableSlotsSchema.parse({ serviceId, date, professionalId });
+
+  // Verificar caché primero
+  const cacheKey = getCacheKey(validated.serviceId, validated.date, validated.professionalId);
+  const cached = getFromCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
   try {
     // Obtener el servicio para conocer la duración
@@ -170,7 +218,12 @@ export async function getAvailableSlots(
     }
 
     // Ordenar por hora
-    return allSlots.sort((a, b) => a.start.getTime() - b.start.getTime());
+    const sortedSlots = allSlots.sort((a, b) => a.start.getTime() - b.start.getTime());
+
+    // Guardar en caché
+    setCache(cacheKey, sortedSlots);
+
+    return sortedSlots;
 
   } catch (error) {
     if (error instanceof BookingError) {
@@ -349,6 +402,11 @@ export async function createBooking(data: {
       return newBooking;
     });
 
+    // Invalidar caché para la fecha de la reserva
+    invalidateCacheForDate(validated.start);
+
+    return booking;
+
     return booking;
 
   } catch (error) {
@@ -397,6 +455,11 @@ export async function cancelBooking(cancellationToken: string) {
         updatedAt: new Date(),
       })
       .where(eq(bookings.cancellationToken, validated.cancellationToken));
+
+    // Invalidar caché para la fecha de la reserva
+    if (booking.start) {
+      invalidateCacheForDate(booking.start);
+    }
 
     return true;
 
