@@ -31,15 +31,18 @@ cd fisioterapia
 npm install
 
 # 3. Configurar variables de entorno
-cp .env.local.example .env.local
+cp .env.example .env.local
 # Editar .env.local con tus credenciales reales
 
-# 4. Crear base de datos en Neon
-# Y copiar el connection string en DATABASE_URL
+# 4. Generar secrets
+openssl rand -base64 32  # Para AUTH_SECRET y CRON_SECRET
 
-# 5. Generar AUTH_SECRET
-openssl rand -base64 32
-# Copiar el resultado en AUTH_SECRET
+# 5. Configurar variables en .env.local:
+# DATABASE_URL="postgresql://..."
+# AUTH_SECRET="tu-secret"
+# RESEND_API_KEY="re_..."
+# CRON_SECRET="tu-otro-secret"
+# NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 # 6. Push del schema a la base de datos
 npm run db:push
@@ -48,6 +51,8 @@ npm run db:push
 npm run db:seed
 
 # 8. Arrancar en local
+npm run dev
+```
 npm run dev
 ```
 
@@ -72,7 +77,7 @@ Tras ejecutar `npm run db:seed`:
 
 ## Scripts disponibles
 
-```bash
+````bash
 npm run dev          # Arrancar desarrollo
 npm run build        # Build de producción
 npm start            # Arrancar producción
@@ -82,6 +87,33 @@ npm run db:push      # Push directo del schema (dev)
 npm run db:studio    # Abrir Drizzle Studio
 npm run db:seed      # Sembrar datos de prueba
 ```
+
+## 🚀 Despliegue en Vercel
+
+Para desplegar en producción, sigue la guía completa: **[DESPLEGUE_VERCEL.md](./DESPLEGUE_VERCEL.md)**
+
+**Resumen rápido:**
+
+1. **Preparar servicios:**
+   - [ ] Cuenta de Neon (base de datos)
+   - [ ] Cuenta de Resend (emails)
+   - [ ] Cuenta de Vercel
+   - [ ] Repo en GitHub
+
+2. **Conectar a Vercel:**
+   - Importar repositorio desde GitHub
+   - Configurar variables de entorno
+   - Deploy automático
+
+3. **Post-deploy:**
+   - `npm run db:push` (con DATABASE_URL de Vercel)
+   - `npm run db:seed`
+   - Configurar Cron Jobs en Vercel
+
+4. **Dominio personalizado (opcional):**
+   - Comprar dominio
+   - Configurar en Vercel
+   - Actualizar DNS
 
 ## Checklist para adaptar a cliente real
 
