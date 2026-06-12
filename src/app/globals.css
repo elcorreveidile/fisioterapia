@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colores Eje Fisioterapia */
+  --color-petrol: #16524E;
+  --color-petrol-dark: #0d3a37;
+  --color-sand: #F4EDE3;
+  --color-sand-dark: #ebe6d6;
+  --color-amber: #E8A33D;
+  --color-amber-dark: #c98a30;
+  --color-ink: #1F2A2A;
+  --color-ink-light: #2d3a3a;
+  --color-terracotta: #c4786e;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Tipografías */
+  --font-serif: "Fraunces", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+:root {
+  --background: var(--color-sand);
+  --foreground: var(--color-ink);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+/* Utilidades */
+.text-petrol {
+  color: var(--color-petrol);
+}
+
+.text-amber {
+  color: var(--color-amber);
+}
+
+.bg-petrol {
+  background-color: var(--color-petrol);
+}
+
+.bg-sand {
+  background-color: var(--color-sand);
+}
+
+.bg-amber {
+  background-color: var(--color-amber);
+}
+
+/* Banner de demo */
+.demo-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-petrol);
+  color: var(--color-sand);
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  z-index: 50;
+}
+
+.demo-banner a {
+  color: var(--color-amber);
+  text-decoration: underline;
+}
