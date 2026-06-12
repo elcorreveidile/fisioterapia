@@ -1,0 +1,52 @@
+
+> fisioterapia@0.1.0 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/javierbenitez/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/javierbenitez/Desktop/AI/fisioterapia/fisioterapia/package-lock.json
+
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./Desktop/AI/fisioterapia/fisioterapia/src/app/api/cron/reminders/route.ts:6:1
+Module not found: Can't resolve 'resend'
+  [90m4 |[0m [36mimport[0m { eq, and, gte } [36mfrom[0m [32m'drizzle-orm'[0m;
+  [90m5 |[0m [36mimport[0m { addHours } [36mfrom[0m [32m'date-fns'[0m;
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { [33mResend[0m } [36mfrom[0m [32m'resend'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m
+  [90m8 |[0m [90m// Verificar que el request viene de Vercel Cron[0m
+  [90m9 |[0m [36mexport[0m [36masync[0m [36mfunction[0m [33mGET[0m(request: [33mRequest[0m) {
+
+reading directory item in "/Users/javierbenitez/Desktop/AI/node_modules/resend/dist"
+
+Caused by:
+- Operation timed out (os error 60)
+
+Debug info:
+- Execution of <ModuleAssetContext as AssetContext>::resolve_asset failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of *ResolveResult::is_unresolvable failed
+- Execution of *ResolveResult::alternatives failed
+- Execution of *ResolveResult::with_replaced_request_key failed
+- Execution of resolve_into_package failed
+- Execution of read_matches failed
+- Execution of <DiskFileSystem as FileSystem>::raw_read_dir failed
+- reading directory item in "/Users/javierbenitez/Desktop/AI/node_modules/resend/dist"
+- Operation timed out (os error 60)
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (./Desktop/AI/fisioterapia/fisioterapia/src/app/api/cron/reminders/route.ts:6:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
