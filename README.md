@@ -130,9 +130,13 @@ Cuando una clínica real compre esta solución:
 - ✅ Esquema de base de datos completo
 - ✅ Auth.js configurado para /admin
 - ✅ Páginas públicas: Home, Servicios, Tarifas, Método, Contacto, Legal
-- ⏳ Motor de reservas (pendiente)
-- ⏳ Sistema de pautas y ejercicios (pendiente)
-- ⏳ Panel /admin completo (pendiente)
+- ✅ Motor de reservas (Server Actions, UI de 5 pasos)
+- ✅ Sistema de pautas de ejercicios (/pauta/[token])
+- ✅ Panel /admin básico (login, dashboard, sidebar)
+- ⏳ Integración real con base de datos en reservas
+- ⏳ Funcionalidades avanzadas del panel (agenda, pacientes, ejercicios)
+- ⏳ Emails de confirmación y recordatorios
+- ⏳ Exclusion constraint en Postgres
 
 ## Desarrollo
 
