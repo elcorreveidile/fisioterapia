@@ -290,7 +290,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-petrol text-sand py-12 px-6">
+      <footer className="bg-petrol surface-texture-light text-sand py-12 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>

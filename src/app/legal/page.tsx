@@ -37,7 +37,7 @@ export default function LegalPage() {
       </nav>
 
       {/* Contenido */}
-      <section className="bg-sand py-20 px-6">
+      <section className="hero-surface py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-petrol mb-8">Aviso legal, privacidad y cookies</h1>
 
@@ -129,7 +129,7 @@ export default function LegalPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-petrol text-sand py-12 px-6">
+      <footer className="bg-petrol surface-texture-light text-sand py-12 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="border-t border-petrol/30 pt-8 text-sm opacity-60 text-center">
             <p>© 2026 Eje Fisioterapia. Clínica ficticia — proyecto demo.</p>

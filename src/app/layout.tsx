@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import DemoBanner from "@/components/DemoBanner";
 
 const fraunces = Fraunces({
   variable: "--font-serif",
@@ -56,16 +57,5 @@ export default function RootLayout({
         <DemoBanner />
       </body>
     </html>
-  );
-}
-
-function DemoBanner() {
-  return (
-    <div className="demo-banner">
-      Clínica ficticia — proyecto demo del catálogo{" "}
-      <a href="https://por2duros.com" target="_blank" rel="noopener noreferrer">
-        Por 2 Duros
-      </a>
-    </div>
   );
 }
