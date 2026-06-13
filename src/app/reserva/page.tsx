@@ -15,9 +15,9 @@ function ReservaContent() {
   const [selectedProfessional, setSelectedProfessional] = useState<number | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date; professionalId: number } | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: searchParams.get('name') || '',
+    email: searchParams.get('email') || '',
+    phone: searchParams.get('phone') || '',
   });
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();

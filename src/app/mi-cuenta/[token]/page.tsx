@@ -13,6 +13,7 @@ import {
 import { eq, desc } from 'drizzle-orm';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import PatientSession from './PatientSession';
 
 const statusLabels: Record<string, string> = {
   pending: 'Pendiente',
@@ -116,6 +117,12 @@ export default async function MiCuentaTokenPage({
   }
   const pautas = [...pautasMap.values()];
 
+  // Reserva prerrellenada con los datos del paciente (para que quede vinculada).
+  const reservaUrl =
+    `/reserva?email=${encodeURIComponent(patient.email)}` +
+    `&name=${encodeURIComponent(patient.name)}` +
+    (patient.phone ? `&phone=${encodeURIComponent(patient.phone)}` : '');
+
   return (
     <div className="min-h-screen bg-sand">
       <header className="bg-petrol surface-texture-light text-sand py-6 px-6">
@@ -124,7 +131,10 @@ export default async function MiCuentaTokenPage({
             <span className="text-2xl">│</span>
             <span className="font-serif text-xl">Eje Fisioterapia</span>
           </div>
-          <span className="text-sm opacity-80">Tu área de paciente</span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm opacity-80 hidden sm:inline">Tu área de paciente</span>
+            <PatientSession token={token} />
+          </div>
         </div>
       </header>
 
@@ -140,7 +150,7 @@ export default async function MiCuentaTokenPage({
           {upcoming.length === 0 ? (
             <p className="text-ink-light text-sm">
               No tienes citas próximas.{' '}
-              <Link href="/reserva" className="text-petrol underline hover:text-amber">
+              <Link href={reservaUrl} className="text-petrol underline hover:text-amber">
                 Reservar una cita
               </Link>
             </p>
@@ -229,7 +239,7 @@ export default async function MiCuentaTokenPage({
         )}
 
         <div className="text-center">
-          <Link href="/reserva" className="inline-block bg-petrol text-sand px-6 py-3 rounded hover:bg-petrol-dark transition-colors font-medium">
+          <Link href={reservaUrl} className="inline-block bg-petrol text-sand px-6 py-3 rounded hover:bg-petrol-dark transition-colors font-medium">
             Reservar nueva cita
           </Link>
         </div>
