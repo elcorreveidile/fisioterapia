@@ -70,7 +70,7 @@ const services = [
   },
   {
     slug: 'valoracion-inicial',
-    image: null,
+    image: '/images/servicio-valoracion.png',
     name: 'Valoración Inicial',
     description: 'Primera visita: exploración física completa, análisis de tu dolor y plan de tratamiento personalizado.',
     fullDescription: 'Exploración física completa: observación de la postura, movilidad, fuerza, pruebas ortopédicas específicas según tu dolor. Te explico qué te pasa, por qué ha aparecido y cuántas sesiones podrías necesitar. Al final, te doy una primera pauta de ejercicios.',
