@@ -60,7 +60,7 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="min-h-[80vh] flex items-center bg-sand py-20 px-6">
+      <section className="min-h-[80vh] flex items-center hero-surface py-20 px-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-petrol mb-6">
@@ -285,8 +285,14 @@ export default function Home() {
           <h2 className="text-petrol text-center mb-16">
             Estamos aquí
           </h2>
-          <div className="bg-sand rounded aspect-video flex items-center justify-center mb-8">
-            <p className="text-petrol">[Mapa de Granada: Calle ficticia]</p>
+          <div className="rounded overflow-hidden border border-petrol/15 aspect-video mb-8">
+            <iframe
+              title="Ubicación de Eje Fisioterapia en Granada"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-3.6126%2C37.1700%2C-3.5840%2C37.1850&layer=mapnik&marker=37.1773%2C-3.5986"
+              loading="lazy"
+              className="w-full h-full"
+              style={{ border: 0 }}
+            />
           </div>
           <div className="text-center">
             <p className="text-ink-light mb-4">

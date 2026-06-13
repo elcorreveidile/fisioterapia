@@ -75,6 +75,45 @@ h3 {
   background-color: var(--color-amber);
 }
 
+/* Texturas sutiles de marca: refuerzan identidad sin restar legibilidad */
+.surface-texture {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--color-petrol) 5%, transparent) 0,
+    color-mix(in srgb, var(--color-petrol) 5%, transparent) 1px,
+    transparent 1px,
+    transparent 22px
+  );
+}
+
+.surface-texture-light {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.05) 0,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 22px
+  );
+}
+
+/* Fondo del hero: base arena + hairlines sutiles + resplandor ámbar superior */
+.hero-surface {
+  background-color: var(--color-sand);
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--color-petrol) 4%, transparent) 0,
+      color-mix(in srgb, var(--color-petrol) 4%, transparent) 1px,
+      transparent 1px,
+      transparent 22px
+    ),
+    radial-gradient(
+      120% 100% at 100% 0%,
+      color-mix(in srgb, var(--color-amber) 10%, transparent) 0%,
+      transparent 55%
+    );
+}
+
 /* Banner de demo */
 .demo-banner {
   position: fixed;

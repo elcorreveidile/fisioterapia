@@ -78,8 +78,14 @@ export default function ContactoPage() {
             </div>
           </div>
 
-          <div className="bg-sand rounded aspect-square flex items-center justify-center min-h-[400px]">
-            <p className="text-petrol text-center px-8">[Mapa de Granada con marca]</p>
+          <div className="rounded overflow-hidden border border-petrol/15 min-h-[400px] aspect-square">
+            <iframe
+              title="Ubicación de Eje Fisioterapia en Granada"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-3.6126%2C37.1700%2C-3.5840%2C37.1850&layer=mapnik&marker=37.1773%2C-3.5986"
+              loading="lazy"
+              className="w-full h-full"
+              style={{ border: 0 }}
+            />
           </div>
         </div>
       </section>

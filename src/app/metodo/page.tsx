@@ -156,7 +156,7 @@ export default function MetodoPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-6 bg-petrol text-sand">
+      <section className="py-20 px-6 bg-petrol surface-texture-light text-sand">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-serif text-3xl mb-6">¿Quieres probar este método?</h2>
           <p className="text-xl mb-8 opacity-90">
