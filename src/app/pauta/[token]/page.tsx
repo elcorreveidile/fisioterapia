@@ -68,7 +68,7 @@ export default async function PautaPage({ params }: Props) {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-xl font-serif text-petrol mb-2">
-                    {item.exercise.name}
+                    {item.exercise.title}
                   </h2>
                   <p className="text-ink-light mb-4">
                     {item.exercise.description}

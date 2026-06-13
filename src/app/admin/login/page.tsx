@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from '@/auth/auth';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,9 +25,11 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError('Credenciales incorrectas');
-      } else {
+      } else if (result?.ok) {
         router.push('/admin');
         router.refresh();
+      } else {
+        setError('Error al iniciar sesión');
       }
     } catch (err) {
       setError('Error al iniciar sesión');
@@ -39,13 +41,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-sand flex items-center justify-center px-6">
       <div className="max-w-md w-full">
-        <div className="bg-white p-8 rounded shadow-lg">
+        <div className="bg-white p-8 rounded shadow-lg overflow-hidden">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-3xl text-petrol">│</span>
               <span className="font-serif text-2xl text-petrol">Eje Fisioterapia</span>
             </div>
-            <h1 className="text-2xl font-semibold text-petrol">Panel de administración</h1>
+            <h1 className="text-xl font-semibold text-petrol break-words">Panel de administración</h1>
             <p className="text-ink-light text-sm mt-2">Introduce tus credenciales para acceder</p>
           </div>
 
@@ -95,7 +97,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-ink-light">
+          <div className="mt-6 text-center text-sm text-ink-light break-words">
             <p className="mb-2">
               <strong>Demo:</strong> admin@ejefisioterapia-demo.com / admin123
             </p>

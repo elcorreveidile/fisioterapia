@@ -107,10 +107,10 @@ export const treatmentNotes = pgTable('treatment_notes', {
 // Exercises (biblioteca de ejercicios)
 export const exercises = pgTable('exercises', {
   id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  description: text('description').notNull(),
-  bodyArea: text('body_area').notNull(), // 'cervical', 'lumbar', 'hombro', 'rodilla', 'tobillo'
-  illustrationUrl: text('illustration_url'),
+  title: text('title').notNull(),
+  description: text('description'),
+  category: text('category'),
+  imageUrl: text('image_url'),
   videoUrl: text('video_url'),
   active: boolean('active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -207,6 +207,20 @@ export const patientExercisesRelations = relations(patientExercises, ({ one }) =
     references: [professionals.id],
   }),
 }));
+
+// Leads (contactos del formulario)
+export const leads = pgTable('leads', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  phone: text('phone'),
+  message: text('message').notNull(),
+  status: text('status').notNull().default('new'), // 'new', 'contacted', 'converted', 'lost'
+  source: text('source'), // 'web', 'referral', 'social'
+  notes: text('notes'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
 
 // Auth.js tables
 export const users = pgTable('users', {

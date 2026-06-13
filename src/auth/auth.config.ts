@@ -8,15 +8,20 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnAdmin = nextUrl.pathname.startsWith('/admin');
+      const isOnLoginPage = nextUrl.pathname === '/admin/login';
 
-      if (isOnAdmin) {
-        if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
-      } else if (isLoggedIn) {
-        return Response.redirect(new URL('/admin', nextUrl));
+      // Always allow access to login page
+      if (isOnLoginPage) {
+        return true;
       }
+
+      // Protect admin routes
+      if (isOnAdmin && !isLoggedIn) {
+        return false;
+      }
+
       return true;
     },
   },
-  providers: [], // Add providers with the Drizzle adapter
+  providers: [],
 };
