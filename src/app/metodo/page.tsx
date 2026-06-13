@@ -63,8 +63,14 @@ export default function MetodoPage() {
                 ¿Por qué? Porque la fisioterapia de verdad necesita tiempo: para observar, para palpación, para corregir, para enseñar. Para que entiendas qué te pasa.
               </p>
             </div>
-            <div className="bg-sand rounded aspect-square flex items-center justify-center">
-              <p className="text-petrol text-center px-8">[Ilustración: reloj con 60 minutos, manos trabajando]</p>
+            <div className="relative rounded aspect-[5/4] overflow-hidden shadow-sm">
+              <Image
+                src="/images/metodo-una-hora.png"
+                alt="Una sesión de una hora: el fisioterapeuta dedica el tiempo completo a un solo paciente"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
             </div>
           </div>
         </div>
