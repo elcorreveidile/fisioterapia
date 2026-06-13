@@ -16,6 +16,9 @@ export default async function PatientPage({
 
   const { id } = await params;
   const patientId = parseInt(id);
+  if (isNaN(patientId)) {
+    notFound();
+  }
 
   // Obtener paciente
   const [patient] = await db
