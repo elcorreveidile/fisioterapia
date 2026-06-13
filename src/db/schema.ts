@@ -126,7 +126,9 @@ export const patientExercises = pgTable('patient_exercises', {
   repetitions: text('repetitions').notNull(), // Puede ser "10-12" o "30 segundos"
   frequency: text('frequency').notNull(), // '2x al día', '3x por semana'
   observations: text('observations'),
-  token: text('token').notNull().unique(), // Token para acceso a /pauta/[token]
+  // Token para acceso a /pauta/[token]. NO es único: varios ejercicios de una
+  // misma pauta comparten token para mostrarse juntos en un solo enlace.
+  token: text('token').notNull(),
   active: boolean('active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
