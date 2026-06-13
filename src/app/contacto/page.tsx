@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ContactForm from './ContactForm';
 
 export default function ContactoPage() {
   return (
@@ -90,8 +91,19 @@ export default function ContactoPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Formulario de contacto */}
       <section className="py-20 px-6 bg-sand">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-petrol text-center mb-2">Escríbenos</h2>
+          <p className="text-ink-light text-center mb-8">
+            Cuéntanos qué necesitas y te respondemos lo antes posible.
+          </p>
+          <ContactForm />
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 px-6 bg-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-petrol mb-6">¿Prefieres reservar ahora?</h2>
           <p className="text-ink-light mb-8">
