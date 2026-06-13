@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import { patients, verificationTokens } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { randomUUID } from 'crypto';
 import { sendPatientAccessEmail } from '@/lib/email';
@@ -13,22 +13,25 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { email } = schema.parse(body);
+    const normalized = email.trim().toLowerCase();
 
+    // Búsqueda insensible a mayúsculas; usamos el email REAL del paciente
+    // como identificador del token (para que case con el área de paciente).
     const [patient] = await db
-      .select({ id: patients.id })
+      .select({ id: patients.id, email: patients.email })
       .from(patients)
-      .where(eq(patients.email, email));
+      .where(sql`lower(${patients.email}) = ${normalized}`);
 
     // Solo enviamos si el email corresponde a un paciente; pero respondemos
     // siempre igual para no revelar qué emails están registrados.
     if (patient) {
       const token = randomUUID();
       const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 días
-      await db.insert(verificationTokens).values({ identifier: email, token, expires });
+      await db.insert(verificationTokens).values({ identifier: patient.email, token, expires });
 
       const origin = new URL(request.url).origin;
       try {
-        await sendPatientAccessEmail(email, `${origin}/mi-cuenta/${token}`);
+        await sendPatientAccessEmail(patient.email, `${origin}/mi-cuenta/${token}`);
       } catch (e) {
         console.error('Error al enviar el enlace de acceso:', e);
       }
