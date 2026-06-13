@@ -27,6 +27,9 @@ export default function ContactoPage() {
             <Link href="/contacto" className="text-amber">
               Contacto
             </Link>
+            <Link href="/mi-cuenta" className="hover:text-amber transition-colors">
+              Mi cuenta
+            </Link>
           </div>
           <Link
             href="/reserva"

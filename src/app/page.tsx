@@ -50,6 +50,9 @@ export default function Home() {
             <Link href="/contacto" className="hover:text-amber transition-colors">
               Contacto
             </Link>
+            <Link href="/mi-cuenta" className="hover:text-amber transition-colors">
+              Mi cuenta
+            </Link>
           </div>
           <Link
             href="/reserva"
