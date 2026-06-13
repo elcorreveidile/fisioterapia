@@ -202,6 +202,30 @@ export async function sendPatientAccessEmail(to: string, link: string) {
   await sendEmail(to, 'Tu acceso a Eje Fisioterapia', wrapEmail(body));
 }
 
+// Confirmación al reservar una cita desde la web (estado pendiente).
+export async function sendBookingConfirmation(data: {
+  to: string;
+  patientName: string;
+  serviceName: string;
+  professionalName: string;
+  start: Date;
+}) {
+  const dateStr = format(data.start, "EEEE d 'de' MMMM 'a las' HH:mm", { locale: es });
+  const body = `${heading('Hemos recibido tu reserva')}
+    <p>Hola ${esc(data.patientName)}, esta es tu cita:</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:${C.sand};border-radius:8px;margin:16px 0;">
+      <tr><td style="padding:18px 20px;">
+        <p style="margin:0 0 8px;"><strong style="color:${C.petrol};">📅 Fecha:</strong> ${dateStr}</p>
+        <p style="margin:0 0 8px;"><strong style="color:${C.petrol};">🧘 Servicio:</strong> ${esc(data.serviceName)}</p>
+        <p style="margin:0;"><strong style="color:${C.petrol};">👨‍⚕️ Profesional:</strong> ${esc(data.professionalName)}</p>
+      </td></tr>
+    </table>
+    <p>Te confirmaremos la cita en breve. Puedes ver tus citas y pautas en tu área de paciente:</p>
+    ${button(`${SITE}/mi-cuenta`, 'Acceder a mi área')}
+    <p style="color:${C.inkLight};font-size:14px;">Si no puedes asistir, contáctanos para reprogramarla.</p>`;
+  await sendEmail(data.to, 'Hemos recibido tu reserva · Eje Fisioterapia', wrapEmail(body));
+}
+
 // Emails del formulario de contacto: aviso a la clínica + confirmación al usuario.
 // Best-effort: no lanza (el lead ya se ha guardado).
 export async function sendContactEmails(lead: {
