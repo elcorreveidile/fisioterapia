@@ -104,7 +104,7 @@ export default async function AgendaPage({
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-serif text-petrol">Agenda</h1>
           <a
-            href={`/reserva?date=${format(selectedDate, 'yyyy-MM-dd')}`}
+            href={`/admin/agenda/nueva?date=${format(selectedDate, 'yyyy-MM-dd')}`}
             className="px-6 py-3 bg-petrol text-sand rounded hover:bg-petrol-dark transition-colors font-medium"
           >
             + Nueva cita
