@@ -321,11 +321,11 @@ export async function createBooking(data: {
     // Email normalizado para vincular siempre con el mismo paciente
     const patientEmail = validated.patientEmail.trim().toLowerCase();
 
-    // Verificar si el paciente ya existe
+    // Verificar si el paciente ya existe (insensible a mayúsculas para no duplicar)
     let [patient] = await db
       .select()
       .from(patients)
-      .where(eq(patients.email, patientEmail))
+      .where(sql`lower(${patients.email}) = ${patientEmail}`)
       .limit(1);
 
     if (!patient) {
