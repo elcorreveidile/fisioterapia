@@ -114,7 +114,7 @@ function ReservaContent() {
           </div>
         </nav>
 
-        <section className="min-h-[60vh] flex items-center justify-center bg-sand py-20 px-6">
+        <section className="min-h-[60vh] flex items-center justify-center hero-surface py-20 px-6">
           <div className="max-w-2xl mx-auto text-center">
             <div className="bg-white p-12 rounded border-2 border-petrol">
               <div className="w-20 h-20 bg-amber/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -415,7 +415,7 @@ function ReservaContent() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-petrol text-sand py-12 px-6">
+      <footer className="bg-petrol surface-texture-light text-sand py-12 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="border-t border-petrol/30 pt-8 text-sm opacity-60 text-center">
             <p>© 2026 Eje Fisioterapia. Clínica ficticia — proyecto demo.</p>

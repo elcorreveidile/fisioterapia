@@ -138,7 +138,7 @@ export default async function PautaPage({ params }: Props) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-petrol text-sand py-8 px-6 mt-12">
+      <footer className="bg-petrol surface-texture-light text-sand py-8 px-6 mt-12">
         <div className="max-w-4xl mx-auto text-center text-sm opacity-70">
           <p className="mb-2">Eje Fisioterapia · Entiende tu dolor</p>
           <p>Esta es una página personalizada con tus ejercicios. Guárdala en favoritos para consultarla cuando necesites.</p>
