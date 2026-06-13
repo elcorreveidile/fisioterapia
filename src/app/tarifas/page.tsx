@@ -1,43 +1,11 @@
 import Link from 'next/link';
+import SiteNav from '@/components/SiteNav';
 
 export default function TarifasPage() {
   return (
     <div className="flex flex-col">
       {/* Navegación */}
-      <nav className="bg-petrol text-sand py-4 px-6">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">│</span>
-            <span className="font-serif text-xl font-semibold">Eje Fisioterapia</span>
-          </Link>
-          <div className="hidden md:flex gap-6 text-sm">
-            <Link href="/" className="hover:text-amber transition-colors">
-              Inicio
-            </Link>
-            <Link href="/servicios" className="hover:text-amber transition-colors">
-              Servicios
-            </Link>
-            <Link href="/tarifas" className="text-amber">
-              Tarifas
-            </Link>
-            <Link href="/metodo" className="hover:text-amber transition-colors">
-              El método
-            </Link>
-            <Link href="/contacto" className="hover:text-amber transition-colors">
-              Contacto
-            </Link>
-            <Link href="/mi-cuenta" className="hover:text-amber transition-colors">
-              Mi cuenta
-            </Link>
-          </div>
-          <Link
-            href="/reserva"
-            className="bg-amber text-ink px-4 py-2 rounded hover:bg-amber-dark transition-colors font-medium text-sm"
-          >
-            Reserva tu valoración
-          </Link>
-        </div>
-      </nav>
+      <SiteNav active="/tarifas" />
 
       {/* Header */}
       <section className="hero-surface py-20 px-6">
