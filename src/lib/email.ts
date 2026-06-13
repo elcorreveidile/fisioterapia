@@ -193,6 +193,15 @@ export async function sendScheduledEmail(
   }
 }
 
+// Email con el enlace de acceso al área de paciente (magic link).
+export async function sendPatientAccessEmail(to: string, link: string) {
+  const body = `${heading('Tu acceso a Eje Fisioterapia')}
+    <p>Has solicitado acceder a tu área de paciente, donde puedes ver tus citas, tus bonos y tus pautas de ejercicios.</p>
+    ${button(link, 'Acceder a mi área')}
+    <p style="color:${C.inkLight};font-size:14px;">Si no has sido tú, puedes ignorar este email. Por seguridad, no compartas este enlace.</p>`;
+  await sendEmail(to, 'Tu acceso a Eje Fisioterapia', wrapEmail(body));
+}
+
 // Emails del formulario de contacto: aviso a la clínica + confirmación al usuario.
 // Best-effort: no lanza (el lead ya se ha guardado).
 export async function sendContactEmails(lead: {

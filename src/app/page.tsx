@@ -317,6 +317,7 @@ export default function Home() {
                 <li><Link href="/metodo">El método</Link></li>
                 <li><Link href="/tarifas">Tarifas</Link></li>
                 <li><Link href="/contacto">Contacto</Link></li>
+                <li><Link href="/mi-cuenta">Área de paciente</Link></li>
                 <li><Link href="/legal">Aviso legal</Link></li>
               </ul>
             </div>
