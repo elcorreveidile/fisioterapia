@@ -316,72 +316,44 @@ export async function createBooking(data: {
         .returning();
     }
 
-    // Verificar y bloquear bono si se proporciona (dentro de transacción para evitar race condition)
+    // Descontar bono si aplica.
+    // Nota: el driver neon-http no soporta transacciones interactivas, así que
+    // se hace de forma secuencial (suficiente para este caso de uso).
     if (validated.voucherId) {
-      // Primero verificamos sin bloquear para validación básica
-      const [voucherCheck] = await db
+      const [voucher] = await db
         .select()
         .from(vouchers)
         .where(eq(vouchers.id, validated.voucherId))
         .limit(1);
 
-      if (!voucherCheck) {
-        throw new BookingError('Bono no encontrado', 'NOT_FOUND');
+      if (!voucher || voucher.patientId !== patient.id) {
+        throw new BookingError('El bono no existe o no pertenece a este paciente', 'NOT_FOUND');
+      }
+      if (voucher.sessionsRemaining <= 0) {
+        throw new BookingError('El bono no tiene sesiones restantes', 'CONFLICT');
       }
 
-      if (voucherCheck.patientId !== patient.id) {
-        throw new BookingError('El bono no pertenece a este paciente', 'VALIDATION');
-      }
+      await db
+        .update(vouchers)
+        .set({ sessionsRemaining: sql`${vouchers.sessionsRemaining} - ${1}` })
+        .where(eq(vouchers.id, validated.voucherId));
     }
 
-    // Crear la reserva y descontar bono en transacción atómica
-    const booking = await db.transaction(async (tx) => {
-      // Si se usa bono, verificar y bloquear dentro de la transacción
-      if (validated.voucherId) {
-        const [voucher] = await tx
-          .select()
-          .from(vouchers)
-          .where(eq(vouchers.id, validated.voucherId))
-          .for('update') // Bloquea la fila para esta transacción
-          .limit(1);
-
-        if (!voucher || voucher.patientId !== patient.id) {
-          tx.rollback();
-          throw new BookingError('El bono no existe o no pertenece a este paciente', 'NOT_FOUND');
-        }
-
-        if (voucher.sessionsRemaining <= 0) {
-          tx.rollback();
-          throw new BookingError('El bono no tiene sesiones restantes', 'CONFLICT');
-        }
-
-        // Descontar sesión (usando SQL parametrizado para evitar inyección)
-        await tx
-          .update(vouchers)
-          .set({
-            sessionsRemaining: sql`${vouchers.sessionsRemaining} - ${1}`,
-          })
-          .where(eq(vouchers.id, validated.voucherId));
-      }
-
-      // Crear la reserva
-      const [newBooking] = await tx
-        .insert(bookings)
-        .values({
-          patientId: patient.id,
-          professionalId: validated.professionalId,
-          serviceId: validated.serviceId,
-          start: validated.start,
-          end,
-          status: 'pending',
-          cancellationToken: randomUUID(),
-          voucherId: validated.voucherId || null,
-          demo: true,
-        })
-        .returning();
-
-      return newBooking;
-    });
+    // Crear la reserva
+    const [booking] = await db
+      .insert(bookings)
+      .values({
+        patientId: patient.id,
+        professionalId: validated.professionalId,
+        serviceId: validated.serviceId,
+        start: validated.start,
+        end,
+        status: 'pending',
+        cancellationToken: randomUUID(),
+        voucherId: validated.voucherId || null,
+        demo: true,
+      })
+      .returning();
 
     // Invalidar caché para la fecha de la reserva
     invalidateCacheForDate(validated.start);
