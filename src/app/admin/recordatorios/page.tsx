@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import SendEmailButton from './SendEmailButton';
+import ComposeEmailButton from './ComposeEmailButton';
 
 export default async function RecordatoriosPage({
   searchParams,
@@ -42,6 +43,11 @@ export default async function RecordatoriosPage({
   const pendingEmails = allEmails.filter((e) => !e.sent);
   const sentEmails = allEmails.filter((e) => e.sent);
   const errorEmails = allEmails.filter((e) => e.error);
+
+  const allPatients = await db
+    .select({ id: patients.id, name: patients.name, email: patients.email })
+    .from(patients)
+    .orderBy(patients.name);
 
   const displayedEmails =
     filter === 'pending'
@@ -81,9 +87,7 @@ export default async function RecordatoriosPage({
       <main className="max-w-7xl mx-auto p-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-serif text-petrol">Sistema de Recordatorios</h1>
-          <button className="px-6 py-3 bg-amber text-petrol rounded hover:bg-amber-dark transition-colors font-medium">
-            Configurar email service
-          </button>
+          <ComposeEmailButton patients={allPatients} />
         </div>
 
         {/* Estadísticas */}

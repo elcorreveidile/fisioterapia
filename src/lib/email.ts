@@ -51,6 +51,14 @@ export function wrapEmail(bodyHtml: string): string {
 </body></html>`;
 }
 
+// Email libre (mensaje escrito a mano desde el panel) con la plantilla de marca.
+export function simpleEmailHtml(message: string): string {
+  const safe = esc(message).replace(/\n/g, '<br>');
+  return wrapEmail(
+    `<div style="font-size:16px;line-height:1.6;color:${C.inkLight};">${safe}</div>`
+  );
+}
+
 function heading(text: string): string {
   return `<h1 style="color:${C.petrol};font-size:22px;margin:0 0 16px;font-weight:bold;">${text}</h1>`;
 }
