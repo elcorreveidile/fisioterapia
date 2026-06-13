@@ -3,6 +3,7 @@ import { auth } from '@/auth/auth';
 import { db } from '@/db';
 import { scheduledEmails } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { sendScheduledEmail } from '@/lib/email';
 
 // POST - Reintentar envío de email
 export async function POST(
@@ -61,20 +62,17 @@ export async function PATCH(
       return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
     }
 
-    const [updated] = await db
-      .update(scheduledEmails)
-      .set({ sent: true, sentAt: new Date(), error: null })
-      .where(eq(scheduledEmails.id, emailId))
-      .returning();
-
-    if (!updated) {
-      return NextResponse.json({ error: 'Email no encontrado' }, { status: 404 });
+    // Envío real vía Resend (marca enviado o registra el error).
+    const result = await sendScheduledEmail(emailId);
+    if (!result.ok) {
+      const status = result.error === 'Email no encontrado' ? 404 : 502;
+      return NextResponse.json({ error: result.error || 'No se pudo enviar' }, { status });
     }
 
-    return NextResponse.json({ message: 'Email marcado como enviado' });
+    return NextResponse.json({ message: 'Email enviado' });
   } catch (error) {
-    console.error('Error al marcar email:', error);
-    return NextResponse.json({ error: 'Error al marcar email' }, { status: 500 });
+    console.error('Error al enviar email:', error);
+    return NextResponse.json({ error: 'Error al enviar email' }, { status: 500 });
   }
 }
 
