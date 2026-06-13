@@ -14,6 +14,7 @@ import { eq, desc } from 'drizzle-orm';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import PatientSession from './PatientSession';
+import CancelBookingButton from './CancelBookingButton';
 
 const statusLabels: Record<string, string> = {
   pending: 'Pendiente',
@@ -75,6 +76,7 @@ export default async function MiCuentaTokenPage({
         start: bookings.start,
         end: bookings.end,
         status: bookings.status,
+        cancellationToken: bookings.cancellationToken,
         serviceName: services.name,
         professionalName: professionals.name,
       })
@@ -157,18 +159,31 @@ export default async function MiCuentaTokenPage({
           ) : (
             <div className="space-y-3">
               {upcoming.map((b) => (
-                <div key={b.id} className="flex flex-wrap items-center justify-between gap-2 p-3 bg-sand rounded">
-                  <div>
-                    <div className="font-medium text-petrol">
-                      {format(b.start, "EEEE d 'de' MMMM, HH:mm", { locale: es })}
+                <div key={b.id} className="p-3 bg-sand rounded">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <div className="font-medium text-petrol">
+                        {format(b.start, "EEEE d 'de' MMMM, HH:mm", { locale: es })}
+                      </div>
+                      <div className="text-sm text-ink-light">
+                        {b.serviceName} · con {b.professionalName}
+                      </div>
                     </div>
-                    <div className="text-sm text-ink-light">
-                      {b.serviceName} · con {b.professionalName}
-                    </div>
+                    <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-800">
+                      {statusLabels[b.status] ?? b.status}
+                    </span>
                   </div>
-                  <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-800">
-                    {statusLabels[b.status] ?? b.status}
-                  </span>
+                  {(b.status === 'pending' || b.status === 'confirmed') && (
+                    <div className="flex gap-2 mt-3">
+                      <Link
+                        href={reservaUrl}
+                        className="text-xs px-3 py-1 rounded border border-petrol/30 text-petrol hover:bg-white transition-colors"
+                      >
+                        Reprogramar
+                      </Link>
+                      <CancelBookingButton token={b.cancellationToken} />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

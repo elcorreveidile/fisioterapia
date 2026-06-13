@@ -12,6 +12,7 @@ import {
   createBooking,
 } from '@/app/actions/bookings';
 import type { AvailableSlot } from '@/app/actions/booking-types';
+import SiteNav from '@/components/SiteNav';
 
 type Service = { id: number; name: string; duration: number; price: number };
 type Professional = { id: number; name: string; surname: string; bio: string | null };
@@ -207,22 +208,7 @@ function ReservaContent() {
 
   return (
     <div className="flex flex-col">
-      <nav className="bg-petrol text-sand py-4 px-6">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">│</span>
-            <span className="font-serif text-xl font-semibold">Eje Fisioterapia</span>
-          </Link>
-          <div className="hidden md:flex gap-6 text-sm">
-            <Link href="/" className="hover:text-amber transition-colors">Inicio</Link>
-            <Link href="/servicios" className="hover:text-amber transition-colors">Servicios</Link>
-            <Link href="/tarifas" className="hover:text-amber transition-colors">Tarifas</Link>
-            <Link href="/metodo" className="hover:text-amber transition-colors">El método</Link>
-            <Link href="/contacto" className="hover:text-amber transition-colors">Contacto</Link>
-            <Link href="/mi-cuenta" className="hover:text-amber transition-colors">Mi cuenta</Link>
-          </div>
-        </div>
-      </nav>
+      <SiteNav active="/reserva" />
 
       <section className="bg-sand py-12 px-6">
         <div className="max-w-6xl mx-auto">

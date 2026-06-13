@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import DemoBanner from "@/components/DemoBanner";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const fraunces = Fraunces({
   variable: "--font-serif",
@@ -54,6 +55,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
+        <ScrollToTop />
         <DemoBanner />
       </body>
     </html>
