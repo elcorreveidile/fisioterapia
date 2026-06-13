@@ -303,7 +303,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-petrol/30 pt-8 text-sm opacity-60 text-center">
-            <p>© 2026 Eje Fisioterapia. Clínica ficticia — proyecto demo.</p>
+            <p>© 2026 Eje Fisioterapia. Clínica ficticia — proyecto demo. · v1.0</p>
             <p className="mt-2">
               Ninguna persona, dirección ni número de colegiado son reales. El contenido sanitario es ilustrativo.
             </p>
