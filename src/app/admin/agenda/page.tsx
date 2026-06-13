@@ -5,6 +5,7 @@ import { eq, and, gte, lte } from 'drizzle-orm';
 import { startOfDay, endOfDay, addDays, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import AgendaFilters from './AgendaFilters';
+import BookingActions from './BookingActions';
 
 export default async function AgendaPage({
   searchParams,
@@ -104,7 +105,7 @@ export default async function AgendaPage({
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-serif text-petrol">Agenda</h1>
           <a
-            href={`/reserva?date=${format(selectedDate, 'yyyy-MM-dd')}`}
+            href={`/admin/agenda/nueva?date=${format(selectedDate, 'yyyy-MM-dd')}`}
             className="px-6 py-3 bg-petrol text-sand rounded hover:bg-petrol-dark transition-colors font-medium"
           >
             + Nueva cita
@@ -233,18 +234,20 @@ export default async function AgendaPage({
                           </div>
 
                           <div className="flex gap-2 ml-4">
-                            <button
-                              className="px-3 py-1 bg-white/50 rounded hover:bg-white transition-colors text-sm"
-                              title="Ver detalles"
-                            >
-                              👁️
-                            </button>
-                            <button
-                              className="px-3 py-1 bg-white/50 rounded hover:bg-white transition-colors text-sm"
-                              title="Editar"
-                            >
-                              ✏️
-                            </button>
+                            <BookingActions
+                              booking={{
+                                id: booking.id,
+                                status: booking.status,
+                                dateLabel: format(booking.start, "EEEE, d MMM yyyy", { locale: es }),
+                                timeLabel: `${format(booking.start, 'HH:mm')} - ${format(booking.end, 'HH:mm')}`,
+                                patientName: booking.patientName,
+                                patientPhone: booking.patientPhone,
+                                patientEmail: booking.patientEmail,
+                                serviceName: booking.serviceName,
+                                serviceDuration: booking.serviceDuration,
+                                professionalName: booking.professionalName,
+                              }}
+                            />
                           </div>
                         </div>
                       </div>

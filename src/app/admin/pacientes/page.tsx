@@ -54,6 +54,27 @@ function PacientesContent() {
     }
   };
 
+  const handleDelete = async (id: number, name: string) => {
+    if (
+      !confirm(
+        `¿Eliminar a ${name}? Se borrarán también sus citas, bonos, notas y pautas. Esta acción no se puede deshacer.`
+      )
+    ) {
+      return;
+    }
+    try {
+      const response = await fetch(`/api/admin/patients/${id}`, { method: 'DELETE' });
+      if (response.ok) {
+        await fetchPatients();
+      } else {
+        const error = await response.json().catch(() => ({}));
+        alert('Error al eliminar: ' + (error.error || 'Error desconocido'));
+      }
+    } catch {
+      alert('Error al eliminar el paciente');
+    }
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
@@ -204,6 +225,12 @@ function PacientesContent() {
                           >
                             Ver ficha
                           </a>
+                          <button
+                            onClick={() => handleDelete(patient.id, patient.name)}
+                            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+                          >
+                            Eliminar
+                          </button>
                         </div>
                       </td>
                     </tr>

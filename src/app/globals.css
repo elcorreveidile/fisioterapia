@@ -35,23 +35,26 @@ body {
   box-sizing: border-box;
 }
 
-/* Tipografía */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  line-height: 1.2;
-}
+/* Tipografía (en @layer base para que las utilidades de Tailwind, p. ej.
+   text-xl/text-3xl, puedan sobreescribir estos tamaños por defecto) */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    line-height: 1.2;
+  }
 
-h1 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-}
+  h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+  }
 
-h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
-}
+  h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
 
-h3 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  h3 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+  }
 }
 
 /* Utilidades */

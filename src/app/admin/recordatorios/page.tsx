@@ -4,10 +4,17 @@ import { scheduledEmails, bookings, patients, services } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import SendEmailButton from './SendEmailButton';
 
-export default async function RecordatoriosPage() {
+export default async function RecordatoriosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
   const session = await auth();
   if (!session) return null;
+
+  const { filter = 'all' } = await searchParams;
 
   // Obtener emails programados con información de reservas
   const allEmails = await db
@@ -35,6 +42,15 @@ export default async function RecordatoriosPage() {
   const pendingEmails = allEmails.filter((e) => !e.sent);
   const sentEmails = allEmails.filter((e) => e.sent);
   const errorEmails = allEmails.filter((e) => e.error);
+
+  const displayedEmails =
+    filter === 'pending'
+      ? pendingEmails
+      : filter === 'sent'
+        ? sentEmails
+        : filter === 'errors'
+          ? errorEmails
+          : allEmails;
 
   // Calcular estadísticas
   const reminder24h = pendingEmails.filter((e) => e.type === 'reminder_24h').length;
@@ -93,26 +109,32 @@ export default async function RecordatoriosPage() {
         {/* Tabs para diferentes tipos */}
         <div className="mb-6">
           <div className="flex gap-4 border-b border-petrol/20">
-            <button className="px-4 py-2 border-b-2 border-petrol text-petrol font-medium">
-              Todos ({allEmails.length})
-            </button>
-            <button className="px-4 py-2 text-ink-light hover:text-petrol">
-              Pendientes ({pendingEmails.length})
-            </button>
-            <button className="px-4 py-2 text-ink-light hover:text-petrol">
-              Enviados ({sentEmails.length})
-            </button>
-            <button className="px-4 py-2 text-ink-light hover:text-petrol">
-              Con errores ({errorEmails.length})
-            </button>
+            {[
+              { key: 'all', label: 'Todos', count: allEmails.length },
+              { key: 'pending', label: 'Pendientes', count: pendingEmails.length },
+              { key: 'sent', label: 'Enviados', count: sentEmails.length },
+              { key: 'errors', label: 'Con errores', count: errorEmails.length },
+            ].map((tab) => (
+              <a
+                key={tab.key}
+                href={`?filter=${tab.key}`}
+                className={`px-4 py-2 ${
+                  filter === tab.key
+                    ? 'border-b-2 border-petrol text-petrol font-medium'
+                    : 'text-ink-light hover:text-petrol'
+                }`}
+              >
+                {tab.label} ({tab.count})
+              </a>
+            ))}
           </div>
         </div>
 
         {/* Lista de emails programados */}
         <div className="bg-white rounded border-2 border-petrol/20 overflow-hidden">
-          {allEmails.length === 0 ? (
+          {displayedEmails.length === 0 ? (
             <div className="p-8 text-center text-ink-light">
-              <p className="mb-2">📧 No hay emails programados</p>
+              <p className="mb-2">📧 No hay emails en esta vista</p>
               <p className="text-sm">Los emails se crean automáticamente al confirmar citas</p>
             </div>
           ) : (
@@ -144,7 +166,7 @@ export default async function RecordatoriosPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-petrol/10">
-                  {allEmails.map((email) => (
+                  {displayedEmails.map((email) => (
                     <tr key={email.id} className="hover:bg-sand/50 transition-colors">
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -188,22 +210,11 @@ export default async function RecordatoriosPage() {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex items-center justify-center gap-2">
-                          {!email.sent && (
-                            <button
-                              className="px-3 py-1 bg-petrol text-sand rounded hover:bg-petrol-dark transition-colors text-sm"
-                              title="Enviar ahora"
-                            >
-                              Enviar
-                            </button>
-                          )}
-                          {email.error && (
-                            <button
-                              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-800 transition-colors text-sm"
-                              title="Reintentar"
-                            >
-                              Reintentar
-                            </button>
-                          )}
+                          {email.error ? (
+                            <SendEmailButton emailId={email.id} label="Reintentar" variant="retry" />
+                          ) : !email.sent ? (
+                            <SendEmailButton emailId={email.id} label="Enviar" />
+                          ) : null}
                         </div>
                       </td>
                     </tr>

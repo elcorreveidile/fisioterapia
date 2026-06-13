@@ -4,10 +4,17 @@ import { vouchers, patients } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import NewVoucherButton from './NewVoucherButton';
+import AddSessionsButton from './AddSessionsButton';
 
 export default async function BonosPage() {
   const session = await auth();
   if (!session) return null;
+
+  const allPatients = await db
+    .select({ id: patients.id, name: patients.name })
+    .from(patients)
+    .orderBy(patients.name);
 
   // Obtener todos los bonos con información de pacientes
   const allVouchers = await db
@@ -53,9 +60,7 @@ export default async function BonosPage() {
       <main className="max-w-7xl mx-auto p-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-serif text-petrol">Gestión de Bonos</h1>
-          <button className="px-6 py-3 bg-petrol text-sand rounded hover:bg-petrol-dark transition-colors font-medium">
-            + Nuevo bono
-          </button>
+          <NewVoucherButton patients={allPatients} />
         </div>
 
         {/* Estadísticas */}
@@ -181,14 +186,7 @@ export default async function BonosPage() {
                             >
                               Ver paciente
                             </a>
-                            {isActive && (
-                              <button
-                                className="px-3 py-1 bg-amber text-petrol rounded hover:bg-amber-dark transition-colors text-sm"
-                                title="Añadir sesiones"
-                              >
-                                +
-                              </button>
-                            )}
+                            {isActive && <AddSessionsButton voucherId={voucher.id} />}
                           </div>
                         </td>
                       </tr>
