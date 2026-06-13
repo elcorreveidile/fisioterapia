@@ -9,12 +9,13 @@ import { notFound } from 'next/navigation';
 export default async function PatientPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
   if (!session) return null;
 
-  const patientId = parseInt(params.id);
+  const { id } = await params;
+  const patientId = parseInt(id);
 
   // Obtener paciente
   const [patient] = await db

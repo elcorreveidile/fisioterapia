@@ -4,19 +4,23 @@ import { professionals, bookings, services, patients } from '@/db/schema';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import { startOfDay, endOfDay, addDays, format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import AgendaFilters from './AgendaFilters';
 
 export default async function AgendaPage({
   searchParams,
 }: {
-  searchParams: { date?: string; professional?: string; view?: 'day' | 'week' };
+  searchParams: Promise<{ date?: string; professional?: string; view?: 'day' | 'week' }>;
 }) {
   const session = await auth();
   if (!session) return null;
 
+  // En Next.js 16 searchParams es un Promise: hay que await.
+  const { date, professional, view } = await searchParams;
+
   // Obtener parámetros con valores por defecto
-  const selectedDate = searchParams.date ? new Date(searchParams.date) : new Date();
-  const selectedProfessional = searchParams.professional ? parseInt(searchParams.professional) : undefined;
-  const selectedView = searchParams.view || 'day';
+  const selectedDate = date ? new Date(date) : new Date();
+  const selectedProfessional = professional ? parseInt(professional) : undefined;
+  const selectedView = view || 'day';
 
   // Obtener profesionales
   const allProfessionals = await db.select().from(professionals);
@@ -137,39 +141,13 @@ export default async function AgendaPage({
               </div>
             </div>
 
-            {/* Selector de fecha */}
-            <div>
-              <label className="block text-sm font-medium text-petrol mb-2">Fecha</label>
-              <input
-                type="date"
-                value={format(selectedDate, 'yyyy-MM-dd')}
-                onChange={(e) => {
-                  const newDate = e.target.value;
-                  window.location.href = `?date=${newDate}&view=${selectedView}${selectedProfessional ? `&professional=${selectedProfessional}` : ''}`;
-                }}
-                className="w-full px-4 py-2 rounded border border-petrol/20"
-              />
-            </div>
-
-            {/* Selector de profesional */}
-            <div>
-              <label className="block text-sm font-medium text-petrol mb-2">Profesional</label>
-              <select
-                value={selectedProfessional || 'all'}
-                onChange={(e) => {
-                  const prof = e.target.value === 'all' ? '' : `&professional=${e.target.value}`;
-                  window.location.href = `?date=${format(selectedDate, 'yyyy-MM-dd')}&view=${selectedView}${prof}`;
-                }}
-                className="w-full px-4 py-2 rounded border border-petrol/20"
-              >
-                <option value="all">Todos los profesionales</option>
-                {allProfessionals.map((prof) => (
-                  <option key={prof.id} value={prof.id}>
-                    {prof.name} {prof.surname}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Selectores de fecha y profesional (Client Component) */}
+            <AgendaFilters
+              date={format(selectedDate, 'yyyy-MM-dd')}
+              view={selectedView}
+              professional={selectedProfessional}
+              professionals={allProfessionals}
+            />
 
             {/* Navegación */}
             <div>
