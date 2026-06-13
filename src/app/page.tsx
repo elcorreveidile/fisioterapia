@@ -50,6 +50,9 @@ export default function Home() {
             <Link href="/contacto" className="hover:text-amber transition-colors">
               Contacto
             </Link>
+            <Link href="/mi-cuenta" className="hover:text-amber transition-colors">
+              Mi cuenta
+            </Link>
           </div>
           <Link
             href="/reserva"
@@ -317,6 +320,7 @@ export default function Home() {
                 <li><Link href="/metodo">El método</Link></li>
                 <li><Link href="/tarifas">Tarifas</Link></li>
                 <li><Link href="/contacto">Contacto</Link></li>
+                <li><Link href="/mi-cuenta">Área de paciente</Link></li>
                 <li><Link href="/legal">Aviso legal</Link></li>
               </ul>
             </div>

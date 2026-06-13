@@ -8,11 +8,14 @@ import {
   bookings,
   patients,
   vouchers,
+  scheduledEmails,
 } from '@/db/schema';
 import { and, eq, gte, lte, or, inArray, sql } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import { addMinutes, startOfDay, endOfDay } from 'date-fns';
 import { z } from 'zod';
+import { sendBookingConfirmation } from '@/lib/email';
+import { BookingError, type Slot, type AvailableSlot } from './booking-types';
 
 // ===== CACHÉ SIMPLE EN MEMORIA =====
 interface CacheEntry {
@@ -55,17 +58,6 @@ function invalidateCacheForDate(date: Date): void {
   }
 }
 
-// ===== ERROR HANDLING CONSISTENTE =====
-export class BookingError extends Error {
-  constructor(
-    message: string,
-    public code: 'NOT_FOUND' | 'VALIDATION' | 'CONFLICT' | 'INTERNAL'
-  ) {
-    super(message);
-    this.name = 'BookingError';
-  }
-}
-
 // ===== VALIDATION SCHEMAS =====
 const GetAvailableSlotsSchema = z.object({
   serviceId: z.number().int().positive(),
@@ -86,20 +78,6 @@ const CreateBookingSchema = z.object({
 const CancelBookingSchema = z.object({
   cancellationToken: z.string().uuid(),
 });
-
-// ===== INTERFACES =====
-export interface Slot {
-  start: Date;
-  end: Date;
-  professionalId: number;
-}
-
-export interface AvailableSlot extends Slot {
-  professional: {
-    name: string;
-    surname: string;
-  };
-}
 
 // ===== OPTIMIZACIÓN: Query única en lugar de N+1 =====
 // Obtener huecos disponibles para un servicio en una fecha
@@ -316,11 +294,14 @@ export async function createBooking(data: {
     // Calcular fecha de fin
     const end = addMinutes(validated.start, service.duration);
 
-    // Verificar si el paciente ya existe
+    // Email normalizado para vincular siempre con el mismo paciente
+    const patientEmail = validated.patientEmail.trim().toLowerCase();
+
+    // Verificar si el paciente ya existe (insensible a mayúsculas para no duplicar)
     let [patient] = await db
       .select()
       .from(patients)
-      .where(eq(patients.email, validated.patientEmail))
+      .where(sql`lower(${patients.email}) = ${patientEmail}`)
       .limit(1);
 
     if (!patient) {
@@ -328,7 +309,7 @@ export async function createBooking(data: {
         .insert(patients)
         .values({
           name: validated.patientName,
-          email: validated.patientEmail,
+          email: patientEmail,
           phone: validated.patientPhone,
           demo: true,
         })
@@ -405,7 +386,34 @@ export async function createBooking(data: {
     // Invalidar caché para la fecha de la reserva
     invalidateCacheForDate(validated.start);
 
-    return booking;
+    // Emails programados (recordatorio, seguimiento, re-reserva) — best-effort
+    try {
+      await db.insert(scheduledEmails).values([
+        { bookingId: booking.id, type: 'reminder_24h', scheduledFor: addMinutes(validated.start, -24 * 60), sent: false },
+        { bookingId: booking.id, type: 'follow_up', scheduledFor: addMinutes(end, 24 * 60), sent: false },
+        { bookingId: booking.id, type: 're_booking', scheduledFor: addMinutes(validated.start, 7 * 24 * 60), sent: false },
+      ]);
+    } catch (e) {
+      console.error('Error al crear emails programados:', e);
+    }
+
+    // Confirmación al paciente — best-effort (no rompe la reserva si falla)
+    try {
+      const [prof] = await db
+        .select({ name: professionals.name, surname: professionals.surname })
+        .from(professionals)
+        .where(eq(professionals.id, validated.professionalId))
+        .limit(1);
+      await sendBookingConfirmation({
+        to: patient.email,
+        patientName: patient.name,
+        serviceName: service.name,
+        professionalName: prof ? `${prof.name} ${prof.surname}` : '',
+        start: validated.start,
+      });
+    } catch (e) {
+      console.error('Error al enviar la confirmación de reserva:', e);
+    }
 
     return booking;
 
