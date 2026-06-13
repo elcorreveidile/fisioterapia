@@ -5,6 +5,7 @@ import { eq, desc } from 'drizzle-orm';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { notFound } from 'next/navigation';
+import EditPatientButton from './EditPatientButton';
 
 export default async function PatientPage({
   params,
@@ -119,15 +120,15 @@ export default async function PatientPage({
               </div>
             </div>
             <div className="flex gap-2">
-              <button className="px-4 py-2 bg-petrol text-sand rounded hover:bg-petrol-dark transition-colors">
-                Editar
-              </button>
-              <a
-                href={`/reserva?patientId=${patient.id}`}
-                className="px-4 py-2 bg-amber text-petrol rounded hover:bg-amber-dark transition-colors"
-              >
-                + Nueva cita
-              </a>
+              <EditPatientButton
+                patient={{
+                  id: patient.id,
+                  name: patient.name,
+                  email: patient.email,
+                  phone: patient.phone,
+                  generalNotes: patient.generalNotes,
+                }}
+              />
             </div>
           </div>
         </div>
