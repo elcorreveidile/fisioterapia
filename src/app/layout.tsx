@@ -16,6 +16,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000"
+  ),
   title: "Eje Fisioterapia | Entiende tu dolor",
   description: "Fisioterapia pedagógica en Granada. Una persona, un fisio, una hora. Sales tratado y sabiendo qué hacer.",
   keywords: ["fisioterapia", "Granada", "fisioterapeuta", "dolor", "rehabilitación", "tratamiento"],
@@ -25,6 +30,14 @@ export const metadata: Metadata = {
     description: "Fisioterapia pedagógica en Granada. Una persona, un fisio, una hora.",
     type: "website",
     locale: "es_ES",
+    images: [
+      {
+        url: "/images/logo.png",
+        width: 1536,
+        height: 1024,
+        alt: "Eje Fisioterapia",
+      },
+    ],
   },
 };
 

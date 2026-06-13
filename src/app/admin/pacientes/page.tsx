@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -17,7 +17,7 @@ interface Patient {
   lastVisit?: Date | null;
 }
 
-export default function PacientesPage() {
+function PacientesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchParam = searchParams.get('search') || '';
@@ -181,7 +181,7 @@ export default function PacientesPage() {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <div className="text-lg font-semibold text-amber">{patient.activeVouchers || 0}</div>
-                        {patient.activeVouchers > 0 && (
+                        {(patient.activeVouchers ?? 0) > 0 && (
                           <div className="text-xs text-ink-light">
                             {patient.remainingSessions} sesiones restantes
                           </div>
@@ -303,5 +303,13 @@ export default function PacientesPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function PacientesPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-ink-light">Cargando…</div>}>
+      <PacientesContent />
+    </Suspense>
   );
 }
