@@ -107,7 +107,7 @@ export default function ServiciosPage() {
   const handleModalClose = () => {
     setShowModal(false);
     setEditingService(null);
-    setFormData({ name: '', description: '', duration: 45, price: 40 });
+    setFormData({ name: '', description: '', duration: 45, price: 40, category: 'general', whatYouGet: '' });
   };
 
   return (

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function MetodoPage() {
   return (
@@ -73,8 +74,14 @@ export default function MetodoPage() {
       <section className="py-20 px-6 bg-sand">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="bg-sand-dark rounded aspect-square flex items-center justify-center">
-              <p className="text-petrol text-center px-8">[Fotografía: fisio explicando a paciente con ejercicios]</p>
+            <div className="relative rounded aspect-[3/2] overflow-hidden shadow-sm">
+              <Image
+                src="/images/servicio-general.png"
+                alt="Fisioterapeuta explicando el tratamiento a una paciente"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
             </div>
             <div>
               <h2 className="text-petrol mb-6">Explicamos qué te pasa</h2>
@@ -108,8 +115,14 @@ export default function MetodoPage() {
                 ¿El resultado? Recuperaciones más rápidas, menos recidivas y más autonomía. Tú sabes qué hacer si vuelve el dolor.
               </p>
             </div>
-            <div className="bg-sand rounded aspect-square flex items-center justify-center">
-              <p className="text-petrol text-center px-8">[Ilustración: papel con ejercicios]</p>
+            <div className="relative rounded aspect-[4/3] overflow-hidden shadow-sm">
+              <Image
+                src="/images/ejercicio-elevacion-pierna.png"
+                alt="Ejemplo de pauta de ejercicio para casa"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
             </div>
           </div>
         </div>

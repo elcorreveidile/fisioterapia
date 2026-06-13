@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 const services = [
   {
     slug: 'fisioterapia-general',
+    image: '/images/servicio-general.png',
     name: 'Fisioterapia General',
     description: 'Sesión individualizada de fisioterapia: valoración, tratamiento manual y pauta de ejercicios para casa.',
     fullDescription: 'En cada sesión evaluamos tu estado actual, aplicamos tratamiento manual específico (masaje, movilizaciones, estiramientos) y te damos una pauta personalizada de ejercicios para casa. No es una sesión de 20 minutos con magnetoterapia aparcada: es una hora completa de atención.',
@@ -13,6 +15,7 @@ const services = [
   },
   {
     slug: 'fisioterapia-deportiva',
+    image: '/images/servicio-deportiva.png',
     name: 'Fisioterapia Deportiva',
     description: 'Readaptación funcional y tratamiento de lesiones deportivas. Recupera tu máximo nivel y previene recidivas.',
     fullDescription: 'Valoración funcional específica para tu deporte, tratamiento de la lesión y plan de retorno progresivo a la actividad. Trabajamos tanto la recuperación como la prevención de nuevas lesiones mediante ejercicios de potenciación y corrección de patrones de movimiento.',
@@ -23,6 +26,7 @@ const services = [
   },
   {
     slug: 'suelo-pelvico',
+    image: '/images/servicio-suelo-pelvico.png',
     name: 'Suelo Pélvico',
     description: 'Rehabilitación del suelo pélvico para incontinencia, prolapsos, posparto y disfunciones sexuales.',
     fullDescription: 'Valoración perineal específica (si procede), ejercicios de rehabilitación del suelo pélvico, reeducación de hábitos y pauta de autocuidado. Trabajamos tanto la recuperación como la prevención de disfunciones del suelo pélvico.',
@@ -33,6 +37,7 @@ const services = [
   },
   {
     slug: 'atm-bruxismo',
+    image: '/images/servicio-atm.png',
     name: 'ATM y Bruxismo',
     description: 'Tratamiento de dolor mandibular, clics al abrir la boca y dolor de cabeza por tensión.',
     fullDescription: 'Tratamiento de la articulación temporomandibular (ATM) y de los músculos masticadores mediante técnicas manuales, liberación miofascial y pauta de automasaje y ejercicios de movilidad. También trabajamos en hábitos y posturas que pueden estar contribuyendo al problema.',
@@ -43,6 +48,7 @@ const services = [
   },
   {
     slug: 'fisioterapia-respiratoria',
+    image: '/images/servicio-respiratoria.png',
     name: 'Fisioterapia Respiratoria',
     description: 'Tratamiento de asma, EPOC, bronquitis crónica y patologías respiratorias con ejercicio terapéutico.',
     fullDescription: 'Valoración de la mecánica respiratoria, técnicas de drenaje bronquial, ejercicio terapéutico adaptado a tu capacidad y pauta de ejercicio respiratorio para casa. También enseñamos técnicas de manejo de crisis.',
@@ -53,6 +59,7 @@ const services = [
   },
   {
     slug: 'masaje-descarga',
+    image: '/images/servicio-masaje.png',
     name: 'Masaje de Descarga',
     description: 'Masaje terapéutico para liberar tensión muscular. No es fisioterapia: es pura relajación y descarga.',
     fullDescription: 'Sesión de masaje terapéutico para liberar tensión muscular acumulada por estrés, posturas o actividad física. No incluye valoración ni diagnóstico: es puramente de bienestar y relajación.',
@@ -63,6 +70,7 @@ const services = [
   },
   {
     slug: 'valoracion-inicial',
+    image: null,
     name: 'Valoración Inicial',
     description: 'Primera visita: exploración física completa, análisis de tu dolor y plan de tratamiento personalizado.',
     fullDescription: 'Exploración física completa: observación de la postura, movilidad, fuerza, pruebas ortopédicas específicas según tu dolor. Te explico qué te pasa, por qué ha aparecido y cuántas sesiones podrías necesitar. Al final, te doy una primera pauta de ejercicios.',
@@ -123,7 +131,19 @@ export default function ServiciosPage() {
       <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto space-y-12">
           {services.map((service, i) => (
-            <div key={i} className="bg-sand p-8 rounded border border-petrol/20">
+            <div key={i} className="bg-sand rounded border border-petrol/20 overflow-hidden">
+              {service.image && (
+                <div className="relative aspect-[3/2] w-full">
+                  <Image
+                    src={service.image}
+                    alt={service.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 1024px"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div className="p-8">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h2 className="text-petrol mb-2">{service.name}</h2>
@@ -150,6 +170,7 @@ export default function ServiciosPage() {
               >
                 Reservar este servicio
               </Link>
+              </div>
             </div>
           ))}
         </div>

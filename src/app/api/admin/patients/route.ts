@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth/auth';
 import { db } from '@/db';
-import { patients, bookings, vouchers, sql, count } from '@/db/schema';
-import { eq, desc, or } from 'drizzle-orm';
+import { patients, bookings, vouchers } from '@/db/schema';
+import { eq, desc, or, sql, count } from 'drizzle-orm';
 import { z } from 'zod';
 
 const patientSchema = z.object({
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
       .values({
         name: validated.name,
         email: validated.email,
-        phone: validated.phone || null,
+        phone: validated.phone || '',
         generalNotes: null,
         demo: true,
       })

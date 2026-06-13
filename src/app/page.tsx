@@ -1,6 +1,29 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Lee dinámicamente las infografías de ejercicios de /public/images.
+// Cualquier archivo "ejercicio-*.png" que se añada aparece solo en la galería.
+function getExerciseImages() {
+  const dir = path.join(process.cwd(), 'public', 'images');
+  return fs
+    .readdirSync(dir)
+    .filter((file) => file.startsWith('ejercicio-') && file.endsWith('.png'))
+    .sort()
+    .map((file) => {
+      const label = file
+        .replace(/^ejercicio-/, '')
+        .replace(/\.png$/, '')
+        .replace(/-/g, ' ')
+        .replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+      return { src: `/images/${file}`, label };
+    });
+}
 
 export default function Home() {
+  const exercises = getExerciseImages();
+
   return (
     <div className="flex flex-col">
       {/* Navegación */}
@@ -61,10 +84,15 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="bg-sand-dark rounded-lg aspect-[4/3] flex items-center justify-center">
-            <p className="text-petrol text-center px-8">
-              [Fotografía: manos de fisio trabajando, paciente en movimiento]
-            </p>
+          <div className="relative aspect-[3/2] rounded-lg overflow-hidden shadow-lg">
+            <Image
+              src="/images/hero.png"
+              alt="Fisioterapeuta atendiendo a una paciente en Eje Fisioterapia"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
           </div>
         </div>
       </section>
@@ -101,8 +129,43 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Servicios destacados */}
+      {/* Biblioteca de pautas */}
       <section className="py-20 px-6 bg-sand">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-petrol text-center mb-4">
+            Así son nuestras pautas
+          </h2>
+          <p className="text-ink-light text-center max-w-2xl mx-auto mb-16">
+            Cada ejercicio que te llevas a casa va explicado paso a paso, con
+            ilustraciones claras. Esto es lo que significa &ldquo;salir sabiendo qué
+            hacer&rdquo;.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {exercises.map((exercise) => (
+              <figure
+                key={exercise.src}
+                className="bg-white rounded-lg overflow-hidden border border-petrol/15 shadow-sm"
+              >
+                <div className="relative aspect-[4/3]">
+                  <Image
+                    src={exercise.src}
+                    alt={`Pauta de ejercicio: ${exercise.label}`}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+                <figcaption className="px-4 py-3 text-sm font-medium text-petrol">
+                  {exercise.label}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Servicios destacados */}
+      <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-petrol text-center mb-16">
             Servicios
@@ -150,7 +213,7 @@ export default function Home() {
       </section>
 
       {/* Equipo */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-20 px-6 bg-sand">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-petrol text-center mb-16">
             Tu equipo
@@ -159,16 +222,24 @@ export default function Home() {
             {[
               {
                 name: 'Carlos Molina García',
+                image: '/images/carlos.png',
                 bio: 'Especialista en fisioterapia deportiva y readaptación funcional. Más de 10 años tratando a atletas de élite y pacientes que quieren volver a moverse sin dolor.',
               },
               {
                 name: 'Laura Fernández Ruiz',
+                image: '/images/laura.png',
                 bio: 'Experta en suelo pélvico, fisioterapia respiratoria y rehabilitación postural. Me gusta que cada paciente entienda qué le pasa y por qué.',
               },
             ].map((prof, i) => (
               <div key={i} className="text-center">
-                <div className="w-32 h-32 bg-sand rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <span className="text-petrol text-sm">[Foto]</span>
+                <div className="relative w-32 h-32 rounded-full overflow-hidden mx-auto mb-4 bg-sand">
+                  <Image
+                    src={prof.image}
+                    alt={prof.name}
+                    fill
+                    sizes="128px"
+                    className="object-cover"
+                  />
                 </div>
                 <h3 className="font-serif text-xl mb-2">{prof.name}</h3>
                 <p className="text-ink-light text-sm">{prof.bio}</p>
@@ -179,7 +250,7 @@ export default function Home() {
       </section>
 
       {/* Opiniones */}
-      <section className="py-20 px-6 bg-sand">
+      <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-petrol text-center mb-16">
             Lo que dicen nuestros pacientes
@@ -209,7 +280,7 @@ export default function Home() {
       </section>
 
       {/* Mapa */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-20 px-6 bg-sand">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-petrol text-center mb-16">
             Estamos aquí
