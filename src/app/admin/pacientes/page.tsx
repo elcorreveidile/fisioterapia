@@ -1,66 +1,91 @@
-import { auth } from '@/auth/auth';
-import { db } from '@/db';
-import { patients, bookings, vouchers, services, professionals, treatmentNotes, patientExercises } from '@/db/schema';
-import { eq, count, desc, sql } from 'drizzle-orm';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-export default async function PacientesPage({
-  searchParams,
-}: {
-  searchParams: { search?: string };
-}) {
-  const session = await auth();
-  if (!session) return null;
+interface Patient {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  createdAt: Date;
+  bookingsCount?: number;
+  activeVouchers?: number;
+  remainingSessions?: number;
+  lastVisit?: Date | null;
+}
 
-  const searchTerm = searchParams.search || '';
+export default function PacientesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchParam = searchParams.get('search') || '';
 
-  // Obtener pacientes con contadores
-  const allPatients = await db
-    .select({
-      id: patients.id,
-      name: patients.name,
-      email: patients.email,
-      phone: patients.phone,
-      createdAt: patients.createdAt,
-    })
-    .from(patients)
-    .where(
-      searchTerm
-        ? sql`${patients.name} ILIKE ${`%${searchTerm}%`} OR ${patients.email} ILIKE ${`%${searchTerm}%`} OR ${patients.phone} ILIKE ${`%${searchTerm}%`}`
-        : undefined
-    )
-    .orderBy(desc(patients.createdAt));
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(searchParam);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+  });
 
-  // Para cada paciente, obtener estadísticas
-  const patientsWithStats = await Promise.all(
-    allPatients.map(async (patient) => {
-      const [bookingsCount] = await db
-        .select({ count: count() })
-        .from(bookings)
-        .where(eq(bookings.patientId, patient.id));
+  useEffect(() => {
+    fetchPatients();
+  }, [searchParam]);
 
-      const [activeVouchers] = await db
-        .select({ count: count(), total: sql<number>`sum(${vouchers.sessionsRemaining})` })
-        .from(vouchers)
-        .where(eq(vouchers.patientId, patient.id));
+  const fetchPatients = async () => {
+    try {
+      const url = searchParam
+        ? `/api/admin/patients?search=${encodeURIComponent(searchParam)}`
+        : '/api/admin/patients';
 
-      const [lastBooking] = await db
-        .select({ start: bookings.start })
-        .from(bookings)
-        .where(eq(bookings.patientId, patient.id))
-        .orderBy(desc(bookings.start))
-        .limit(1);
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        setPatients(data);
+      }
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      return {
-        ...patient,
-        bookingsCount: bookingsCount.count || 0,
-        activeVouchers: activeVouchers.count || 0,
-        remainingSessions: activeVouchers.total || 0,
-        lastVisit: lastBooking?.start || null,
-      };
-    })
-  );
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (searchTerm) {
+      params.set('search', searchTerm);
+    }
+    router.push(`/admin/pacientes?${params.toString()}`);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch('/api/admin/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        await fetchPatients();
+        setShowModal(false);
+        setFormData({ name: '', email: '', phone: '' });
+      } else {
+        const error = await response.json();
+        alert('Error al crear paciente: ' + (error.error || 'Error desconocido'));
+      }
+    } catch (error) {
+      console.error('Error creating patient:', error);
+      alert('Error al crear paciente');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-sand">
@@ -80,34 +105,41 @@ export default async function PacientesPage({
       <main className="max-w-7xl mx-auto p-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-serif text-petrol">Pacientes</h1>
-          <button className="px-6 py-3 bg-petrol text-sand rounded hover:bg-petrol-dark transition-colors font-medium">
+          <button
+            onClick={() => setShowModal(true)}
+            className="px-6 py-3 bg-petrol text-sand rounded hover:bg-petrol-dark transition-colors font-medium"
+          >
             + Nuevo paciente
           </button>
         </div>
 
         {/* Búsqueda */}
         <div className="bg-white p-6 rounded border-2 border-petrol/20 mb-6">
-          <form>
-            <input
-              type="search"
-              name="search"
-              placeholder="Buscar por nombre, email o teléfono..."
-              defaultValue={searchTerm}
-              className="w-full px-4 py-3 rounded border border-petrol/20"
-            />
-            <button type="submit" className="mt-2 px-4 py-2 bg-petrol text-sand rounded">
-              Buscar
-            </button>
+          <form onSubmit={handleSearch}>
+            <div className="flex gap-2">
+              <input
+                type="search"
+                placeholder="Buscar por nombre, email o teléfono..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 px-4 py-3 rounded border border-petrol/20"
+              />
+              <button type="submit" className="px-6 py-3 bg-petrol text-sand rounded">
+                Buscar
+              </button>
+            </div>
           </form>
         </div>
 
         {/* Lista de pacientes */}
         <div className="bg-white rounded border-2 border-petrol/20 overflow-hidden">
-          {patientsWithStats.length === 0 ? (
+          {loading ? (
+            <div className="p-8 text-center text-ink-light">Cargando...</div>
+          ) : patients.length === 0 ? (
             <div className="p-8 text-center text-ink-light">
               <p className="mb-2">👥 No hay pacientes registrados</p>
               <p className="text-sm">
-                {searchTerm ? 'No se encontraron resultados para tu búsqueda' : 'El primer paciente se registrará al hacer una reserva'}
+                {searchParam ? 'No se encontraron resultados para tu búsqueda' : 'El primer paciente se registrará al hacer una reserva'}
               </p>
             </div>
           ) : (
@@ -124,12 +156,12 @@ export default async function PacientesPage({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-petrol/10">
-                  {patientsWithStats.map((patient) => (
+                  {patients.map((patient) => (
                     <tr key={patient.id} className="hover:bg-sand/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="font-medium text-petrol">{patient.name}</div>
                         <div className="text-sm text-ink-light">
-                          Desde {format(patient.createdAt, 'MMM yyyy', { locale: es })}
+                          Desde {format(new Date(patient.createdAt), 'MMM yyyy', { locale: es })}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -145,10 +177,10 @@ export default async function PacientesPage({
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <div className="text-lg font-semibold text-petrol">{patient.bookingsCount}</div>
+                        <div className="text-lg font-semibold text-petrol">{patient.bookingsCount || 0}</div>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <div className="text-lg font-semibold text-amber">{patient.activeVouchers}</div>
+                        <div className="text-lg font-semibold text-amber">{patient.activeVouchers || 0}</div>
                         {patient.activeVouchers > 0 && (
                           <div className="text-xs text-ink-light">
                             {patient.remainingSessions} sesiones restantes
@@ -158,7 +190,7 @@ export default async function PacientesPage({
                       <td className="px-6 py-4">
                         {patient.lastVisit ? (
                           <div className="text-sm">
-                            {format(patient.lastVisit, "d MMM 'yy", { locale: es })}
+                            {format(new Date(patient.lastVisit), "d MMM 'yy", { locale: es })}
                           </div>
                         ) : (
                           <div className="text-sm text-ink-light">Sin visitas</div>
@@ -185,22 +217,90 @@ export default async function PacientesPage({
         {/* Estadísticas */}
         <div className="mt-6 grid grid-cols-3 gap-4">
           <div className="bg-white p-4 rounded border-2 border-petrol/20">
-            <div className="text-2xl font-bold text-petrol">{patientsWithStats.length}</div>
+            <div className="text-2xl font-bold text-petrol">{patients.length}</div>
             <div className="text-sm text-ink-light">Pacientes totales</div>
           </div>
           <div className="bg-white p-4 rounded border-2 border-petrol/20">
             <div className="text-2xl font-bold text-petrol">
-              {patientsWithStats.filter((p) => p.bookingsCount > 0).length}
+              {patients.filter((p) => (p.bookingsCount || 0) > 0).length}
             </div>
             <div className="text-sm text-ink-light">Con visitas</div>
           </div>
           <div className="bg-white p-4 rounded border-2 border-petrol/20">
             <div className="text-2xl font-bold text-amber">
-              {patientsWithStats.filter((p) => p.activeVouchers > 0).length}
+              {patients.filter((p) => (p.activeVouchers || 0) > 0).length}
             </div>
             <div className="text-sm text-ink-light">Con bonos activos</div>
           </div>
         </div>
+
+        {/* Modal para nuevo paciente */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h2 className="text-2xl font-serif text-petrol mb-4">Nuevo Paciente</h2>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-petrol mb-2">
+                    Nombre completo *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-2 rounded border border-petrol/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-petrol mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-2 rounded border border-petrol/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-petrol mb-2">
+                    Teléfono
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-4 py-2 rounded border border-petrol/20"
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-petrol text-sand rounded hover:bg-petrol-dark transition-colors"
+                  >
+                    Crear
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowModal(false);
+                      setFormData({ name: '', email: '', phone: '' });
+                    }}
+                    className="px-4 py-2 bg-sand text-petrol rounded hover:bg-sand-warm transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

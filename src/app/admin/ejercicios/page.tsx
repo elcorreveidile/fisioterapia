@@ -54,10 +54,19 @@ export default function EjerciciosPage() {
         : '/api/exercises';
       const method = editingExercise ? 'PUT' : 'POST';
 
+      // Convertir strings vacíos a null para campos opcionales
+      const payload = {
+        title: formData.title,
+        description: formData.description || null,
+        category: formData.category || null,
+        imageUrl: formData.imageUrl || null,
+        videoUrl: formData.videoUrl || null,
+      };
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -65,9 +74,14 @@ export default function EjerciciosPage() {
         setShowModal(false);
         setEditingExercise(null);
         setFormData({ title: '', description: '', category: '', imageUrl: '', videoUrl: '' });
+      } else {
+        const error = await response.json();
+        console.error('Error saving exercise:', error);
+        alert('Error al guardar: ' + (error.details || error.error || 'Error desconocido'));
       }
     } catch (error) {
       console.error('Error saving exercise:', error);
+      alert('Error al guardar ejercicio');
     } finally {
       setLoading(false);
     }

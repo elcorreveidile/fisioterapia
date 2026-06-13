@@ -6,10 +6,11 @@ import { useRouter } from 'next/navigation';
 interface Service {
   id: number;
   name: string;
-  description: string | null;
+  description: string;
   duration: number;
   price: number;
-  slug: string;
+  category: string;
+  whatYouGet: string | null;
 }
 
 export default function ServiciosPage() {
@@ -23,6 +24,8 @@ export default function ServiciosPage() {
     description: '',
     duration: 45,
     price: 40,
+    category: 'general',
+    whatYouGet: '',
   });
 
   useEffect(() => {
@@ -63,7 +66,7 @@ export default function ServiciosPage() {
         await fetchServices();
         setShowModal(false);
         setEditingService(null);
-        setFormData({ name: '', description: '', duration: 45, price: 40 });
+        setFormData({ name: '', description: '', duration: 45, price: 40, category: 'general', whatYouGet: '' });
       }
     } catch (error) {
       console.error('Error saving service:', error);
@@ -76,9 +79,11 @@ export default function ServiciosPage() {
     setEditingService(service);
     setFormData({
       name: service.name,
-      description: service.description || '',
+      description: service.description,
       duration: service.duration,
       price: service.price,
+      category: service.category,
+      whatYouGet: service.whatYouGet || '',
     });
     setShowModal(true);
   };
@@ -165,7 +170,7 @@ export default function ServiciosPage() {
                     <tr key={service.id} className="hover:bg-sand/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="font-medium text-petrol">{service.name}</div>
-                        <div className="text-sm text-ink-light">/{service.slug}</div>
+                        <div className="text-sm text-ink-light">{service.category}</div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-ink-light max-w-md">
@@ -236,6 +241,40 @@ export default function ServiciosPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-2 rounded border border-petrol/20"
                   rows={3}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-petrol mb-2">
+                  Categoría
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-2 rounded border border-petrol/20"
+                  required
+                >
+                  <option value="general">General</option>
+                  <option value="deportiva">Deportiva</option>
+                  <option value="suelo_pelvico">Suelo Pélvico</option>
+                  <option value="atm">ATM y Bruxismo</option>
+                  <option value="respiratoria">Respiratoria</option>
+                  <option value="masaje">Masaje de Descarga</option>
+                  <option value="valoracion">Valoración Inicial</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-petrol mb-2">
+                  Qué te llevas a casa (opcional)
+                </label>
+                <textarea
+                  value={formData.whatYouGet}
+                  onChange={(e) => setFormData({ ...formData, whatYouGet: e.target.value })}
+                  className="w-full px-4 py-2 rounded border border-petrol/20"
+                  rows={2}
+                  placeholder="Ej: Plan de ejercicios personalizado"
                 />
               </div>
 
