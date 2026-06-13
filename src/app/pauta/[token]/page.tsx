@@ -5,11 +5,11 @@ import { patientExercises, exercises, patients, professionals } from '@/db/schem
 import { eq } from 'drizzle-orm';
 
 interface Props {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }
 
 export default async function PautaPage({ params }: Props) {
-  const { token } = params;
+  const { token } = await params;
 
   // Obtener las asignaciones de ejercicios para este token
   const patientExercisesList = await db.query.patientExercises.findMany({

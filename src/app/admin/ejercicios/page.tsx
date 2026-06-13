@@ -130,17 +130,9 @@ export default function EjerciciosPage() {
             <span className="font-serif text-xl">Eje Fisioterapia</span>
             <span className="text-sm opacity-70">· Ejercicios</span>
           </div>
-          <div className="flex gap-4">
-            <a
-              href="/admin/ejercicios/asignar"
-              className="text-sm hover:text-amber transition-colors"
-            >
-              Asignar pautas
-            </a>
-            <a href="/admin" className="text-sm hover:text-amber transition-colors">
-              ← Volver al dashboard
-            </a>
-          </div>
+          <a href="/admin" className="text-sm hover:text-amber transition-colors">
+            ← Volver al dashboard
+          </a>
         </div>
       </header>
 
