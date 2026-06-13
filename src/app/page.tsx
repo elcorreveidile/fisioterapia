@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import fs from 'node:fs';
 import path from 'node:path';
+import ExerciseGallery from '@/components/ExerciseGallery';
 
 // Lee dinámicamente las infografías de ejercicios de /public/images.
 // Cualquier archivo "ejercicio-*.png" que se añada aparece solo en la galería.
@@ -140,27 +141,7 @@ export default function Home() {
             ilustraciones claras. Esto es lo que significa &ldquo;salir sabiendo qué
             hacer&rdquo;.
           </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {exercises.map((exercise) => (
-              <figure
-                key={exercise.src}
-                className="bg-white rounded-lg overflow-hidden border border-petrol/15 shadow-sm"
-              >
-                <div className="relative aspect-[4/3]">
-                  <Image
-                    src={exercise.src}
-                    alt={`Pauta de ejercicio: ${exercise.label}`}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover"
-                  />
-                </div>
-                <figcaption className="px-4 py-3 text-sm font-medium text-petrol">
-                  {exercise.label}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+          <ExerciseGallery exercises={exercises} />
         </div>
       </section>
 
