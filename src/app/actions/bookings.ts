@@ -15,6 +15,7 @@ import { randomUUID } from 'crypto';
 import { addMinutes, startOfDay, endOfDay } from 'date-fns';
 import { z } from 'zod';
 import { sendBookingConfirmation } from '@/lib/email';
+import { BookingError, type Slot, type AvailableSlot } from './booking-types';
 
 // ===== CACHÉ SIMPLE EN MEMORIA =====
 interface CacheEntry {
@@ -57,17 +58,6 @@ function invalidateCacheForDate(date: Date): void {
   }
 }
 
-// ===== ERROR HANDLING CONSISTENTE =====
-export class BookingError extends Error {
-  constructor(
-    message: string,
-    public code: 'NOT_FOUND' | 'VALIDATION' | 'CONFLICT' | 'INTERNAL'
-  ) {
-    super(message);
-    this.name = 'BookingError';
-  }
-}
-
 // ===== VALIDATION SCHEMAS =====
 const GetAvailableSlotsSchema = z.object({
   serviceId: z.number().int().positive(),
@@ -88,20 +78,6 @@ const CreateBookingSchema = z.object({
 const CancelBookingSchema = z.object({
   cancellationToken: z.string().uuid(),
 });
-
-// ===== INTERFACES =====
-export interface Slot {
-  start: Date;
-  end: Date;
-  professionalId: number;
-}
-
-export interface AvailableSlot extends Slot {
-  professional: {
-    name: string;
-    surname: string;
-  };
-}
 
 // ===== OPTIMIZACIÓN: Query única en lugar de N+1 =====
 // Obtener huecos disponibles para un servicio en una fecha
